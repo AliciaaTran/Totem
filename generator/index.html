@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0077c8" />
+    <title>Totem: emergency medical card</title>
+  </head>
+  <body class="generator">
+    <!-- Shared drawings -->
+    <svg width="0" height="0" class="visually-hidden" aria-hidden="true">
+      <defs>
+        <linearGradient id="gold-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffe27a" />
+          <stop offset="0.55" stop-color="#ffc425" />
+          <stop offset="1" stop-color="#d99a00" />
+        </linearGradient>
+        <symbol id="wing" viewBox="0 0 260 760">
+          <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M252 330 C216 238 190 108 126 70 C72 38 20 70 22 132 C24 188 72 216 132 200" />
+            <path d="M118 196 C168 262 208 322 246 372" />
+            <path d="M150 206 C76 218 22 272 24 348 C26 422 82 462 144 456" />
+            <path d="M128 452 C170 500 208 540 246 574" />
+            <path d="M152 462 C96 482 60 522 64 566 C68 616 114 642 168 690 C198 716 226 740 248 760" />
+          </g>
+        </symbol>
+      </defs>
+    </svg>
+
+    <div class="page">
+      <header class="brand">
+        <h1 class="logo" aria-label="Totem">
+          <svg class="logo-t" viewBox="0 0 100 140" aria-hidden="true" focusable="false">
+            <!-- Wings form the crossbar of the T -->
+            <path fill="url(#gold-fill)" d="M47 24 C37 13 22 7 3 6 C5 12 9 16 14 18 C10 19 9 22 11 24 C16 24 20 25 23 28 C20 29 20 32 22 34 C28 33 32 34 35 37 C38 35 43 35 47 36 Z" />
+            <path fill="url(#gold-fill)" d="M53 24 C63 13 78 7 97 6 C95 12 91 16 86 18 C90 19 91 22 89 24 C84 24 80 25 77 28 C80 29 80 32 78 34 C72 33 68 34 65 37 C62 35 57 35 53 36 Z" />
+            <!-- Staff -->
+            <rect x="46" y="12" width="8" height="126" rx="4" fill="url(#gold-fill)" />
+            <circle cx="50" cy="9" r="7" fill="url(#gold-fill)" />
+            <!-- Two snakes; the blue under-stroke makes them read as wrapping the staff -->
+            <g class="snakes" fill="none" stroke-linecap="round">
+              <path class="snake-gap" d="M50 132 C30 124 30 110 50 102 C70 94 70 80 50 72 C32 65 33 52 43 46" />
+              <path class="snake" d="M50 132 C30 124 30 110 50 102 C70 94 70 80 50 72 C32 65 33 52 43 46" />
+              <path class="snake-gap" d="M50 132 C70 124 70 110 50 102 C30 94 30 80 50 72 C68 65 67 52 57 46" />
+              <path class="snake" d="M50 132 C70 124 70 110 50 102 C30 94 30 80 50 72 C68 65 67 52 57 46" />
+            </g>
+            <ellipse class="snake-head" cx="41.5" cy="45" rx="4.5" ry="3.6" />
+            <ellipse class="snake-head" cx="58.5" cy="45" rx="4.5" ry="3.6" />
+          </svg>
+          <span class="logo-rest" aria-hidden="true">otem</span>
+        </h1>
+        <p class="tagline">
+          <span>Your emergency medical card.</span>
+          <span>With just a scan, no one is left behind.</span>
+        </p>
+      </header>
+
+      <div class="stage">
+        <svg class="wing wing-left" aria-hidden="true" focusable="false"><use href="#wing" /></svg>
+        <svg class="wing wing-right" aria-hidden="true" focusable="false"><use href="#wing" /></svg>
+
+        <main class="sheet">
+          <!-- ===== Medical cases ===== -->
+          <section class="block" aria-labelledby="cases-heading">
+            <div class="block-head">
+              <h2 id="cases-heading">Medical cases</h2>
+              <span id="case-count" class="count"></span>
+            </div>
+            <p id="case-empty" class="block-intro">
+              Add the allergies, medications and conditions a first responder should know about.
+            </p>
+            <ul id="case-list" class="items"></ul>
+
+            <button type="button" id="case-add" class="add-button">
+              <span class="add-label">Add a case</span>
+            </button>
+
+            <div id="case-composer" class="composer" hidden>
+              <form id="case-form" novalidate>
+                <h3 id="case-form-title">New case</h3>
+
+                <fieldset class="field">
+                  <legend>Type</legend>
+                  <div id="case-type" class="segmented types"></div>
+                </fieldset>
+
+                <div class="field">
+                  <label for="case-name">Name</label>
+                  <div class="combo">
+                    <input
+                      id="case-name"
+                      type="text"
+                      autocomplete="off"
+                      spellcheck="false"
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="name-suggestions"
+                      aria-describedby="name-status"
+                      maxlength="60"
+                      placeholder="Start typing, e.g. penicillin"
+                    />
+                    <ul id="name-suggestions" role="listbox" aria-label="Suggestions" hidden></ul>
+                  </div>
+                  <p id="name-status" class="hint" aria-live="polite"></p>
+                </div>
+
+                <fieldset id="dose-fields" class="field">
+                  <legend>Dose</legend>
+                  <div class="dose-row">
+                    <div>
+                      <label for="dose-amount" class="sub-label">Amount</label>
+                      <input id="dose-amount" type="text" inputmode="decimal" autocomplete="off" placeholder="500" />
+                    </div>
+                    <div>
+                      <label for="dose-unit" class="sub-label">Unit</label>
+                      <select id="dose-unit"></select>
+                    </div>
+                  </div>
+                  <label class="check"><input id="dose-none" type="checkbox" /> No fixed dose</label>
+                </fieldset>
+
+                <fieldset id="severity-field" class="field">
+                  <legend>Severity</legend>
+                  <div id="case-severity" class="segmented severities"></div>
+                </fieldset>
+
+                <p id="case-error" class="error" role="alert"></p>
+                <div class="form-actions">
+                  <button type="submit" id="case-save" class="primary">Add case</button>
+                  <button type="button" id="case-cancel" class="ghost">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <!-- ===== Emergency contacts ===== -->
+          <section class="block" aria-labelledby="contacts-heading">
+            <div class="block-head">
+              <h2 id="contacts-heading">Emergency contacts</h2>
+              <span id="contact-count" class="count"></span>
+            </div>
+            <p id="contact-empty" class="block-intro">Add the people responders should call.</p>
+            <ul id="contact-list" class="items"></ul>
+
+            <button type="button" id="contact-add" class="add-button">
+              <span class="add-label">Add a contact</span>
+            </button>
+
+            <div id="contact-composer" class="composer" hidden>
+              <form id="contact-form" novalidate>
+                <h3>New contact</h3>
+                <div class="field">
+                  <label for="contact-name">Name</label>
+                  <input id="contact-name" type="text" autocomplete="off" maxlength="60" />
+                </div>
+                <div class="contact-row">
+                  <div class="field">
+                    <label for="contact-phone">Phone</label>
+                    <input id="contact-phone" type="tel" autocomplete="off" placeholder="+84 912 345 678" />
+                  </div>
+                  <div class="field">
+                    <label for="contact-relation">Relation</label>
+                    <select id="contact-relation"></select>
+                  </div>
+                </div>
+                <p id="contact-error" class="error" role="alert"></p>
+                <div class="form-actions">
+                  <button type="submit" class="primary">Add contact</button>
+                  <button type="button" id="contact-cancel" class="ghost">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <footer class="foot">Your card is saved in this browser only. Nothing is uploaded.</footer>
+    </div>
+
+    <div class="generate-bar">
+      <p id="generate-error" class="generate-error" role="alert"></p>
+      <button type="button" id="generate" class="gold-button">Generate QR code</button>
+    </div>
+
+    <dialog id="qr-dialog" class="qr-dialog" aria-labelledby="qr-title">
+      <button type="button" id="qr-close" class="icon-button dialog-close" aria-label="Close"></button>
+      <h2 id="qr-title">Your emergency QR code</h2>
+      <p class="dialog-intro">
+        Scan it with your phone camera to check it opens your card. Download it to print on a wallet card or set
+        as your lock screen.
+      </p>
+      <div id="qr" class="qr"></div>
+      <div class="dialog-actions">
+        <button type="button" id="qr-download" class="primary"></button>
+        <button type="button" id="qr-copy" class="ghost"></button>
+        <a id="qr-open" class="ghost" target="_blank" rel="noopener"></a>
+      </div>
+      <details class="stats-details">
+        <summary>How small is this card?</summary>
+        <dl id="stats" class="stats"></dl>
+      </details>
+    </dialog>
+
+    <script type="module" src="../src/ui/generator.ts"></script>
+  </body>
+</html>

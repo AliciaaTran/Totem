@@ -1,0 +1,70 @@
+/* Shared by both pages: font, reset, focus. */
+
+:root {
+  --font: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Totem palette */
+  --sky: #0077c8; /* page background; white text passes 4.5:1 */
+  --sky-deep: #00609f;
+  --sky-light: #0a93de; /* glow behind the logo (large text only) */
+  --wing: #8fd3f7;
+  --paper: #ffffff;
+  --ink: #0b2540; /* text on white */
+  --ink-soft: #4b6178;
+  --line: #d5e2ee;
+  --tint: #f2f8fd; /* list rows on white */
+  --gold: #ffc425;
+  --gold-light: #ffd75e;
+  --gold-deep: #d99a00;
+  --red: #b3001e;
+  --red-tint: #fde1e5;
+  --amber-tint: #fff1c2;
+  --amber-ink: #6b4e00;
+  --green: #13703a;
+  --focus: #ffc425;
+
+  font-family: var(--font);
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.icon {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

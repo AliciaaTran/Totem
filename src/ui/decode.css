@@ -1,0 +1,132 @@
+/* Responder view: plain black on white, large type, red only for danger. */
+
+body.decode {
+  background: #fff;
+  color: #000;
+  font-size: 22px;
+  line-height: 1.45;
+}
+
+#card {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+.card-header h1 {
+  margin: 0;
+  padding: 24px 0 14px;
+  font-size: 1.45em;
+  line-height: 1.2;
+  border-bottom: 5px solid #000;
+}
+
+.warnings {
+  margin-top: 18px;
+}
+
+.warning {
+  margin: 0 0 12px;
+  padding: 14px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.warning.critical {
+  background: #b3001e;
+  color: #fff;
+  font-size: 1.15em;
+}
+
+.warning.caution {
+  border: 4px solid #000;
+}
+
+.card-section h2 {
+  margin: 32px 0 4px;
+  font-size: 1.15em;
+}
+
+.case-list,
+.contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.case-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 16px;
+  padding: 12px 0;
+  border-bottom: 2px solid #000;
+}
+
+.case-name {
+  font-weight: 700;
+  font-size: 1.15em;
+  overflow-wrap: anywhere;
+}
+
+.user-entered {
+  font-weight: 400;
+  font-size: 0.7em;
+}
+
+.severity {
+  font-weight: 700;
+}
+
+.severity.high {
+  color: #b3001e;
+}
+
+.none {
+  margin: 8px 0;
+}
+
+.contact-list li {
+  margin-top: 14px;
+}
+
+.call {
+  display: block;
+  padding: 16px 18px;
+  border-radius: 8px;
+  background: #000;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.call:focus-visible {
+  outline: 4px solid #b3001e;
+  outline-offset: 3px;
+}
+
+.contact-detail {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.9em;
+}
+
+.card-footer {
+  margin-top: 36px;
+  font-size: 0.75em;
+}
+
+.notice {
+  margin-top: 48px;
+  font-size: 1.1em;
+}
+
+.error-box {
+  padding: 16px;
+  border: 4px solid #b3001e;
+  border-radius: 6px;
+  color: #b3001e;
+  font-weight: 700;
+}
