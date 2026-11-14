@@ -2,7 +2,15 @@ import '@fontsource/atkinson-hyperlegible/400.css';
 import '@fontsource/atkinson-hyperlegible/700.css';
 import './base.css';
 import './generator.css';
-import { measureProfile, profileToPayload, validateCase, validateContact, validateProfile, ValidationError } from '../core/codec';
+import {
+  measureProfile,
+  profileToPayload,
+  validateCase,
+  validateContact,
+  validateHolderName,
+  validateProfile,
+  ValidationError,
+} from '../core/codec';
 import { caseDisplayName, contactDisplayName, formatDose, toReadable } from '../core/display';
 import {
   CASE_TYPE_LABELS,
@@ -52,15 +60,17 @@ function loadProfile(): Profile {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const saved = JSON.parse(raw) as Profile;
-      if (Array.isArray(saved?.cases) && Array.isArray(saved?.contacts) && validateProfile(saved, tables).length === 0) {
-        return saved;
+      const saved = JSON.parse(raw) as Partial<Profile> | null;
+      if (Array.isArray(saved?.cases) && Array.isArray(saved?.contacts)) {
+        // Cards saved before the name field existed have no name: start it blank.
+        const restored: Profile = { name: typeof saved.name === 'string' ? saved.name : '', cases: saved.cases, contacts: saved.contacts };
+        if (validateProfile(restored, tables).length === 0) return restored;
       }
     }
   } catch {
     // Storage blocked or unreadable: start with an empty card.
   }
-  return { cases: [], contacts: [] };
+  return { name: '', cases: [], contacts: [] };
 }
 
 function saveProfile(): void {
@@ -111,6 +121,18 @@ function setChecked(name: string, value: number | null): void {
 function setAddLabel(button: HTMLElement, text: string): void {
   button.replaceChildren(icon('plus'), el('span', {}, text));
 }
+
+// ---------- card holder ----------
+
+const holderInput = byId<HTMLInputElement>('holder-name');
+const holderError = byId('holder-error');
+
+holderInput.value = profile.name;
+holderInput.addEventListener('input', () => {
+  profile.name = holderInput.value;
+  holderError.textContent = validateHolderName(profile.name).join(' ');
+  saveProfile();
+});
 
 // ---------- case composer ----------
 

@@ -2,6 +2,9 @@
 //
 //   HEADER   version (4) | caseCount (5) | contactCount (3)
 //
+//   HOLDER   card holder's name: free-text Huffman codes, then END
+//            (a blank name is just END)
+//
 //   CASE     type (2)
 //            flag (1)    0 → Huffman code from that type's term table
 //                        1 → free-text Huffman codes per character, then END
@@ -122,8 +125,14 @@ export function validateContact(contact: Contact): string[] {
   return problems;
 }
 
+/** The holder's name may be left blank; if given it follows the free-text rules. */
+export function validateHolderName(name: string): string[] {
+  if (typeof name !== 'string') return ['Your name is missing.'];
+  return normalizeText(name) ? validateText(name, 'Your name') : [];
+}
+
 export function validateProfile(profile: Profile, tables: TableSet = getTables()): string[] {
-  const problems: string[] = [];
+  const problems = validateHolderName(profile.name);
   if (profile.cases.length > MAX_CASES) problems.push(`A card holds at most ${MAX_CASES} cases.`);
   if (profile.contacts.length > MAX_CONTACTS) problems.push(`A card holds at most ${MAX_CONTACTS} contacts.`);
   profile.cases.forEach((c, i) => validateCase(c, tables).forEach((p) => problems.push(`Case ${i + 1}: ${p}`)));
@@ -141,6 +150,7 @@ function writeProfile(profile: Profile, tables: TableSet): BitWriter {
   w.writeBits(tables.version, BITS.version);
   w.writeBits(profile.cases.length, BITS.caseCount);
   w.writeBits(profile.contacts.length, BITS.contactCount);
+  tables.freeText.encode(w, profile.name);
   for (const c of profile.cases) writeCase(w, c, tables);
   for (const contact of profile.contacts) writeContact(w, contact, tables);
   return w;
@@ -260,12 +270,13 @@ export function decodeProfile(bytes: Uint8Array): DecodedCard {
     const tables = getTables(version);
     const caseCount = r.readBits(BITS.caseCount);
     const contactCount = r.readBits(BITS.contactCount);
+    const name = tables.freeText.decode(r);
     const cases: Case[] = [];
     for (let i = 0; i < caseCount; i++) cases.push(readCase(r, tables));
     const contacts: Contact[] = [];
     for (let i = 0; i < contactCount; i++) contacts.push(readContact(r, tables));
     r.assertOnlyPadding();
-    return { version, profile: { cases, contacts } };
+    return { version, profile: { name, cases, contacts } };
   } catch (error) {
     if (error instanceof DecodeError) throw error;
     if (error instanceof UnsupportedVersionError) throw new DecodeError(error.message);

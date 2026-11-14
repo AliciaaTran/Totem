@@ -43,6 +43,7 @@ const contact = (name: string, phone: string, relation = Relation.Parent): Conta
 /** What we expect back: free text is stored lowercase (title-cased on display). */
 function expected(p: Profile): Profile {
   return {
+    name: normalizeText(p.name),
     cases: p.cases.map((c) => (c.name.known ? c : { ...c, name: { known: false, text: normalizeText(c.name.text) } })),
     contacts: p.contacts.map((k) => ({ ...k, name: normalizeText(k.name) })),
   };
@@ -55,6 +56,7 @@ function roundTrip(p: Profile): Profile {
 }
 
 const sample: Profile = {
+  name: 'Mai Pham',
   cases: [
     allergy('Penicillin', Severity.LifeThreatening),
     allergy('Peanuts', Severity.Severe),
@@ -70,8 +72,15 @@ describe('round trips', () => {
     expect(roundTrip(sample)).toEqual(expected(sample));
   });
 
+  it('card holder name: blank, accented and spaced', () => {
+    for (const name of ['', '   ', 'Nguyễn Thị  Mai', "O'Brien-Smith"]) {
+      const p: Profile = { ...sample, name };
+      expect(roundTrip(p).name).toBe(normalizeText(name));
+    }
+  });
+
   it('empty profile', () => {
-    expect(roundTrip({ cases: [], contacts: [] })).toEqual({ cases: [], contacts: [] });
+    expect(roundTrip({ name: '', cases: [], contacts: [] })).toEqual({ name: '', cases: [], contacts: [] });
   });
 
   it('every term in every table', () => {
@@ -84,13 +93,14 @@ describe('round trips', () => {
           dose: type === CaseType.Medication ? { amount: 10, unit: Unit.mg } : null,
           severity: type === CaseType.Medication ? null : Severity.Mild,
         }));
-        expect(roundTrip({ cases, contacts: [] })).toEqual({ cases, contacts: [] });
+        expect(roundTrip({ name: '', cases, contacts: [] })).toEqual({ name: '', cases, contacts: [] });
       }
     }
   });
 
   it('unknown names are spelled out and come back lowercase', () => {
     const p: Profile = {
+      name: '',
       cases: [{ type: CaseType.Allergy, name: { known: false, text: 'Kiwi  Fruit' }, dose: null, severity: Severity.Mild }],
       contacts: [],
     };
@@ -99,6 +109,7 @@ describe('round trips', () => {
 
   it('accented and non-Latin names use ESCAPE', () => {
     const p: Profile = {
+      name: '',
       cases: [],
       contacts: [contact('Nguyễn Văn Đức', '0912345678'), contact('王小明', '+8613800138000')],
     };
@@ -114,12 +125,13 @@ describe('round trips', () => {
     [1000, Unit.IU],
     [2, Unit.puff],
   ])('dose %d', (amount, unit) => {
-    const p: Profile = { cases: [medication('Insulin', { amount, unit })], contacts: [] };
+    const p: Profile = { name: '', cases: [medication('Insulin', { amount, unit })], contacts: [] };
     expect(roundTrip(p)).toEqual(p);
   });
 
   it('phone numbers keep leading zeros and +', () => {
     const p: Profile = {
+      name: '',
       cases: [],
       contacts: [contact('A', '0012345'), contact('B', '+0084'), contact('C', '911')],
     };
@@ -128,6 +140,7 @@ describe('round trips', () => {
 
   it('maximum card: 31 cases and 7 contacts', () => {
     const p: Profile = {
+      name: '',
       cases: Array.from({ length: 31 }, (_, i) => allergy(i % 2 ? 'Latex' : 'Eggs', Severity.Moderate)),
       contacts: Array.from({ length: 7 }, (_, i) => contact(`Person ${i}`, `09000000${i}`, i as Relation)),
     };
@@ -137,10 +150,11 @@ describe('round trips', () => {
 
 describe('size', () => {
   it('a known allergy costs only a few bits', () => {
-    const one = { cases: [allergy('Penicillin', Severity.Severe)], contacts: [] };
+    const one = { name: '', cases: [allergy('Penicillin', Severity.Severe)], contacts: [] };
     const stats = measureProfile(one, toReadable(one, tables));
-    // header 12 + type 2 + flag 1 + code + severity 2
-    expect(stats.encodedBits).toBeLessThanOrEqual(12 + 2 + 1 + 3 + 2);
+    // header 12 + blank name (END only) + type 2 + flag 1 + code + severity 2
+    const blankName = tables.freeText.huffman.lengths[tables.freeText.END];
+    expect(stats.encodedBits).toBeLessThanOrEqual(12 + blankName + 2 + 1 + 3 + 2);
   });
 
   it('the sample is much smaller than readable JSON', () => {
@@ -162,31 +176,34 @@ describe('validation', () => {
   };
 
   it('rejects too many cases or contacts', () => {
-    expect(problems({ cases: Array(32).fill(allergy('Latex', Severity.Mild)), contacts: [] })).toHaveLength(1);
-    expect(problems({ cases: [], contacts: Array(8).fill(contact('A', '123')) })).toHaveLength(1);
+    expect(problems({ name: '', cases: Array(32).fill(allergy('Latex', Severity.Mild)), contacts: [] })).toHaveLength(1);
+    expect(problems({ name: '', cases: [], contacts: Array(8).fill(contact('A', '123')) })).toHaveLength(1);
   });
 
   it('requires severity for allergies and conditions, and none for medications', () => {
-    expect(problems({ cases: [{ ...allergy('Latex', Severity.Mild), severity: null }], contacts: [] })).toEqual([
+    expect(problems({ name: '', cases: [{ ...allergy('Latex', Severity.Mild), severity: null }], contacts: [] })).toEqual([
       'Case 1: Choose a severity.',
     ]);
-    expect(problems({ cases: [{ ...medication('Insulin', null), severity: Severity.Mild }], contacts: [] })).toEqual([
+    expect(problems({ name: '', cases: [{ ...medication('Insulin', null), severity: Severity.Mild }], contacts: [] })).toEqual([
       'Case 1: Medications have no severity.',
     ]);
   });
 
   it('rejects bad doses', () => {
     for (const amount of [0, -1, 0.0001, Number.NaN, Infinity]) {
-      expect(problems({ cases: [medication('Insulin', { amount, unit: Unit.IU })], contacts: [] })).toHaveLength(1);
+      expect(problems({ name: '', cases: [medication('Insulin', { amount, unit: Unit.IU })], contacts: [] })).toHaveLength(1);
     }
   });
 
   it('rejects bad names and phones', () => {
     const blank: Case = { type: CaseType.Allergy, name: { known: false, text: '   ' }, dose: null, severity: Severity.Mild };
-    expect(problems({ cases: [blank], contacts: [] })).toEqual(['Case 1: Name is empty.']);
-    expect(problems({ cases: [], contacts: [contact('A', '12')] })).toHaveLength(1);
-    expect(problems({ cases: [], contacts: [contact('A', '12+34')] })).toHaveLength(1);
-    expect(problems({ cases: [], contacts: [contact('x'.repeat(61), '1234')] })).toHaveLength(1);
+    expect(problems({ name: '', cases: [blank], contacts: [] })).toEqual(['Case 1: Name is empty.']);
+    expect(problems({ name: '', cases: [], contacts: [contact('A', '12')] })).toHaveLength(1);
+    expect(problems({ name: '', cases: [], contacts: [contact('A', '12+34')] })).toHaveLength(1);
+    expect(problems({ name: '', cases: [], contacts: [contact('x'.repeat(61), '1234')] })).toHaveLength(1);
+    expect(problems({ name: 'x'.repeat(61), cases: [], contacts: [] })).toEqual([
+      'Your name is longer than 60 characters.',
+    ]);
   });
 });
 
@@ -206,6 +223,7 @@ describe('decoding bad data', () => {
 describe('warnings', () => {
   it('flags severe allergies and same-class medications', () => {
     const p: Profile = {
+      name: '',
       cases: [
         allergy('Penicillin', Severity.LifeThreatening),
         allergy('Aspirin', Severity.Mild),
@@ -226,6 +244,7 @@ describe('warnings', () => {
 
   it('matches unknown names by text', () => {
     const p: Profile = {
+      name: '',
       cases: [
         { type: CaseType.Allergy, name: { known: false, text: 'Kiwi' }, dose: null, severity: Severity.Mild },
         { type: CaseType.Medication, name: { known: false, text: 'kiwi' }, dose: null, severity: null },

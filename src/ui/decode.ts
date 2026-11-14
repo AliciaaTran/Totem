@@ -3,7 +3,7 @@ import '@fontsource/atkinson-hyperlegible/700.css';
 import './base.css';
 import './decode.css';
 import { DecodeError, payloadToCard } from '../core/codec';
-import { caseDisplayName, contactDisplayName, findWarnings, formatDose } from '../core/display';
+import { caseDisplayName, contactDisplayName, findWarnings, formatDose, holderDisplayName } from '../core/display';
 import { CaseType, RELATION_LABELS, SEVERITY_LABELS, Severity, type Case, type Profile } from '../core/schema';
 import { getTables, type TableSet } from '../core/tables';
 import { byId, el } from './dom';
@@ -37,10 +37,17 @@ function severityBadge(c: Case): HTMLElement {
   return el('span', { class: `severity${severity >= Severity.Severe ? ' high' : ''}` }, SEVERITY_LABELS[severity]);
 }
 
+function cardHeader(holder: string): HTMLElement {
+  const title = 'Emergency medical information';
+  if (!holder) return el('header', { class: 'card-header' }, el('h1', {}, title));
+  return el('header', { class: 'card-header' }, el('p', { class: 'card-kind' }, title), el('h1', { class: 'holder' }, holder));
+}
+
 function renderCard(profile: Profile, tables: TableSet): Node[] {
   const of = (type: CaseType) => profile.cases.filter((c) => c.type === type);
   const bySeverity = (a: Case, b: Case) => (b.severity ?? 0) - (a.severity ?? 0);
-  const nodes: Node[] = [el('header', { class: 'card-header' }, el('h1', {}, 'Emergency medical information'))];
+  const holder = profile.name ? holderDisplayName(profile.name) : '';
+  const nodes: Node[] = [cardHeader(holder)];
 
   const warnings = findWarnings(profile, tables);
   if (warnings.length > 0) {
@@ -66,6 +73,7 @@ function renderCard(profile: Profile, tables: TableSet): Node[] {
     nodes.push(
       section(
         'Emergency contacts',
+        ...(holder ? [el('p', { class: 'call-hint' }, `Tell them you are calling about ${holder}.`)] : []),
         el(
           'ul',
           { class: 'contact-list' },

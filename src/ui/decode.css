@@ -13,12 +13,26 @@ body.decode {
   padding: 0 16px 48px;
 }
 
+.card-header {
+  padding: 24px 0 14px;
+  border-bottom: 5px solid #000;
+}
+
 .card-header h1 {
   margin: 0;
-  padding: 24px 0 14px;
   font-size: 1.45em;
   line-height: 1.2;
-  border-bottom: 5px solid #000;
+}
+
+.card-kind {
+  margin: 0 0 4px;
+  font-weight: 700;
+}
+
+.card-header h1.holder {
+  font-size: 1.9em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .warnings {
@@ -85,6 +99,10 @@ body.decode {
 
 .none {
   margin: 8px 0;
+}
+
+.call-hint {
+  margin: 8px 0 0;
 }
 
 .contact-list li {

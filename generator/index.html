@@ -60,6 +60,24 @@
         <svg class="wing wing-right" aria-hidden="true" focusable="false"><use href="#wing" /></svg>
 
         <main class="sheet">
+          <!-- ===== Card holder ===== -->
+          <section class="block holder" aria-labelledby="holder-heading">
+            <h2 id="holder-heading"><label for="holder-name">Your name</label></h2>
+            <p id="holder-intro" class="block-intro">
+              Shown at the top of your card, so responders can tell your contacts who needs help.
+            </p>
+            <input
+              id="holder-name"
+              class="text-input"
+              type="text"
+              autocomplete="name"
+              maxlength="60"
+              placeholder="Full name"
+              aria-describedby="holder-intro holder-error"
+            />
+            <p id="holder-error" class="error" role="alert"></p>
+          </section>
+
           <!-- ===== Medical cases ===== -->
           <section class="block" aria-labelledby="cases-heading">
             <div class="block-head">

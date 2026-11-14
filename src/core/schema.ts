@@ -65,6 +65,8 @@ export interface Contact {
 }
 
 export interface Profile {
+  /** The card holder's name as typed. Empty string = left blank. */
+  name: string;
   cases: Case[];
   contacts: Contact[];
 }

@@ -180,6 +180,24 @@ body.generator {
   max-width: 52ch;
 }
 
+/* ---------- card holder ---------- */
+
+.holder label {
+  cursor: pointer;
+}
+
+.holder .text-input {
+  display: block;
+  max-width: 28rem;
+  margin-top: 14px;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.holder .error {
+  margin: 8px 0 0;
+}
+
 /* ---------- list rows ---------- */
 
 .items {
@@ -446,7 +464,8 @@ body.generator {
 
 .composer input[type='text'],
 .composer input[type='tel'],
-.composer select {
+.composer select,
+.text-input {
   width: 100%;
   min-height: 48px;
   padding: 10px 14px;
@@ -456,12 +475,14 @@ body.generator {
   color: var(--ink);
 }
 
-.composer input::placeholder {
+.composer input::placeholder,
+.text-input::placeholder {
   color: #7d8fa1;
 }
 
 .composer input:focus,
-.composer select:focus {
+.composer select:focus,
+.text-input:focus {
   border-color: var(--sky);
 }
 

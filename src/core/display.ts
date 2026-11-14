@@ -26,13 +26,17 @@ export function formatDose(dose: Dose | null): string {
   return `${dose.amount} ${UNIT_LABELS[dose.unit]}${plural ? 's' : ''}`;
 }
 
+/** Names are stored lowercase; show them title-cased. Used for contacts and the card holder. */
 export function contactDisplayName(name: string): string {
   return titleCase(name);
 }
 
+export const holderDisplayName = contactDisplayName;
+
 /** The same card as plain JSON, used to show how much the encoding saves. */
 export function toReadable(profile: Profile, tables: TableSet): unknown {
   return {
+    ...(normalizeText(profile.name) ? { name: holderDisplayName(profile.name) } : {}),
     cases: profile.cases.map((c) => ({
       type: CASE_TYPE_LABELS[c.type],
       name: caseDisplayName(c, tables),
