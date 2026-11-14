@@ -14,5 +14,4 @@ the code, to ensure medical privacy.
    dose or severity.
 3. Under **Emergency contacts**, tap **Add a contact** and enter a name, phone number and relation.
 4. Tap **Generate QR code**. Download it to print on a wallet card or set as your lock screen.
-5. Scan the code with a phone camera to see the emergency card. To test from a phone, open the generator through
-   the "Network" address that `npm run dev` prints, so the phone and computer are on the same Wi-Fi.
+5. Scan the code with a phone camera to see the emergency card. 
